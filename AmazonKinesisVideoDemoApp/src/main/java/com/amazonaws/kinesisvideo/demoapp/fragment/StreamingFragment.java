@@ -24,7 +24,8 @@ import com.amazonaws.mobileconnectors.kinesisvideo.mediasource.android.AndroidCa
 import com.amazonaws.regions.Regions;
 
 public class StreamingFragment extends Fragment implements TextureView.SurfaceTextureListener {
-    public static final String KEY_MEDIA_SOURCE_CONFIGURATION = "mediaSourceConfiguration";
+    public static final String KEY_MEDIA_SOURCE_CONFIGURATION_1 = "mediaSourceConfiguration1";
+    public static final String KEY_MEDIA_SOURCE_CONFIGURATION_2 = "mediaSourceConfiguration2";
     public static final String KEY_STREAM_NAME = "streamName";
 
     private static final String TAG = StreamingFragment.class.getSimpleName();
@@ -32,8 +33,10 @@ public class StreamingFragment extends Fragment implements TextureView.SurfaceTe
     private Button mStartStreamingButton;
     private KinesisVideoClient mKinesisVideoClient;
     private String mStreamName;
-    private AndroidCameraMediaSourceConfiguration mConfiguration;
-    private AndroidCameraMediaSource mCameraMediaSource;
+    private AndroidCameraMediaSourceConfiguration mConfiguration1;
+    private AndroidCameraMediaSourceConfiguration mConfiguration2;
+    private AndroidCameraMediaSource mCameraMediaSource1;
+    private AndroidCameraMediaSource mCameraMediaSource2;
 
     private SimpleNavActivity navActivity;
 
@@ -49,7 +52,8 @@ public class StreamingFragment extends Fragment implements TextureView.SurfaceTe
                              final Bundle savedInstanceState) {
         getArguments().setClassLoader(AndroidCameraMediaSourceConfiguration.class.getClassLoader());
         mStreamName = getArguments().getString(KEY_STREAM_NAME);
-        mConfiguration = getArguments().getParcelable(KEY_MEDIA_SOURCE_CONFIGURATION);
+        mConfiguration1 = getArguments().getParcelable(KEY_MEDIA_SOURCE_CONFIGURATION_1);
+        mConfiguration2 = getArguments().getParcelable(KEY_MEDIA_SOURCE_CONFIGURATION_2);
 
         final View view = inflater.inflate(R.layout.fragment_streaming, container, false);
         TextureView textureView = (TextureView) view.findViewById(R.id.texture);
@@ -65,10 +69,12 @@ public class StreamingFragment extends Fragment implements TextureView.SurfaceTe
                     KinesisVideoDemoApp.KINESIS_VIDEO_REGION,
                     KinesisVideoDemoApp.getCredentialsProvider());
 
-            mCameraMediaSource = (AndroidCameraMediaSource) mKinesisVideoClient
-                    .createMediaSource(mStreamName, mConfiguration);
 
-            mCameraMediaSource.setPreviewSurfaces(new Surface(previewTexture));
+            mCameraMediaSource1 = (AndroidCameraMediaSource) mKinesisVideoClient
+                    .createMediaSource(mStreamName, mConfiguration1);
+            mCameraMediaSource2 = (AndroidCameraMediaSource) mKinesisVideoClient
+                    .createMediaSource(mStreamName, mConfiguration2);
+            mCameraMediaSource1.setPreviewSurfaces(new Surface(previewTexture));
 
             resumeStreaming();
         } catch (final KinesisVideoException e) {
@@ -107,11 +113,11 @@ public class StreamingFragment extends Fragment implements TextureView.SurfaceTe
 
     private void resumeStreaming() {
         try {
-            if (mCameraMediaSource == null) {
+            if (mCameraMediaSource1 == null) {
                 return;
             }
 
-            mCameraMediaSource.start();
+            mCameraMediaSource1.start();
             Toast.makeText(getActivity(), "resumed streaming", Toast.LENGTH_SHORT).show();
             mStartStreamingButton.setText(getActivity().getText(R.string.stop_streaming));
         } catch (final KinesisVideoException e) {
@@ -122,11 +128,11 @@ public class StreamingFragment extends Fragment implements TextureView.SurfaceTe
 
     private void pauseStreaming() {
         try {
-            if (mCameraMediaSource == null) {
+            if (mCameraMediaSource1 == null) {
                 return;
             }
 
-            mCameraMediaSource.stop();
+            mCameraMediaSource1.stop();
             Toast.makeText(getActivity(), "stopped streaming", Toast.LENGTH_SHORT).show();
             mStartStreamingButton.setText(getActivity().getText(R.string.start_streaming));
         } catch (final KinesisVideoException e) {
@@ -153,8 +159,8 @@ public class StreamingFragment extends Fragment implements TextureView.SurfaceTe
     @Override
     public boolean onSurfaceTextureDestroyed(SurfaceTexture surfaceTexture) {
         try {
-            if (mCameraMediaSource != null)
-                mCameraMediaSource.stop();
+            if (mCameraMediaSource1 != null)
+                mCameraMediaSource1.stop();
             if (mKinesisVideoClient != null)
                 mKinesisVideoClient.stopAllMediaSources();
             KinesisVideoAndroidClientFactory.freeKinesisVideoClient();
