@@ -27,6 +27,9 @@ import com.amazonaws.mobileconnectors.kinesisvideo.client.KinesisVideoAndroidCli
 import com.amazonaws.mobileconnectors.kinesisvideo.data.MimeType;
 import com.amazonaws.mobileconnectors.kinesisvideo.mediasource.android.AndroidCameraMediaSourceConfiguration;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.amazonaws.mobileconnectors.kinesisvideo.util.CameraUtils.getCameras;
 import static com.amazonaws.mobileconnectors.kinesisvideo.util.CameraUtils.getSupportedResolutions;
 import static com.amazonaws.mobileconnectors.kinesisvideo.util.VideoEncoderUtils.getSupportedMimeTypes;
@@ -45,6 +48,7 @@ public class StreamConfigurationFragment extends Fragment {
     private StringSpinnerWidget<CameraMediaSourceConfiguration> mCamerasDropdown;
     private StringSpinnerWidget<Size> mResolutionDropdown;
     private StringSpinnerWidget<MimeType> mMimeTypeDropdown;
+    List<CameraMediaSourceConfiguration> cameras = new ArrayList<>();
 
     private SimpleNavActivity navActivity;
 
@@ -75,12 +79,13 @@ public class StreamConfigurationFragment extends Fragment {
             Log.e(TAG, "Failed to create Kinesis Video client", e);
         }
 
+        cameras = getCameras(mKinesisVideoClient);
         mCamerasDropdown = new StringSpinnerWidget<>(
                 getActivity(),
                 view,
                 R.id.cameras_spinner,
                 ToStrings.CAMERA_DESCRIPTION,
-                getCameras(mKinesisVideoClient));
+                cameras);
 
         mCamerasDropdown.setItemSelectedListener(
                 new StringSpinnerWidget.ItemSelectedListener<CameraMediaSourceConfiguration>() {
@@ -157,7 +162,7 @@ public class StreamConfigurationFragment extends Fragment {
     }
 
     private AndroidCameraMediaSourceConfiguration getCurrentConfiguration1() {
-        CameraMediaSourceConfiguration selectedCamera = mCamerasDropdown.getSelectedItem();
+        CameraMediaSourceConfiguration selectedCamera = cameras.get(0); // Front camera
         return new AndroidCameraMediaSourceConfiguration(
                 AndroidCameraMediaSourceConfiguration.builder()
                         .withCameraId(selectedCamera.getCameraId())
@@ -176,7 +181,7 @@ public class StreamConfigurationFragment extends Fragment {
     }
 
     private AndroidCameraMediaSourceConfiguration getCurrentConfiguration2() {
-        CameraMediaSourceConfiguration selectedCamera = mCamerasDropdown.getSelectedItem();
+        CameraMediaSourceConfiguration selectedCamera = cameras.get(1); // Back camera
         return new AndroidCameraMediaSourceConfiguration(
                 AndroidCameraMediaSourceConfiguration.builder()
                         .withCameraId(selectedCamera.getCameraId())
