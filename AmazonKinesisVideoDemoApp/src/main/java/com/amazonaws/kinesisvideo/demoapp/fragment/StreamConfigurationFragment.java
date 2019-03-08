@@ -32,6 +32,9 @@ import com.amazonaws.mobileconnectors.kinesisvideo.client.KinesisVideoAndroidCli
 import com.amazonaws.mobileconnectors.kinesisvideo.data.MimeType;
 import com.amazonaws.mobileconnectors.kinesisvideo.mediasource.android.AndroidCameraMediaSourceConfiguration;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.amazonaws.mobileconnectors.kinesisvideo.util.CameraUtils.getCameras;
 import static com.amazonaws.mobileconnectors.kinesisvideo.util.CameraUtils.getSupportedResolutions;
 import static com.amazonaws.mobileconnectors.kinesisvideo.util.VideoEncoderUtils.getSupportedMimeTypes;
@@ -52,6 +55,7 @@ public class StreamConfigurationFragment extends Fragment {
     private StringSpinnerWidget<CameraMediaSourceConfiguration> mCamerasDropdown;
     private StringSpinnerWidget<Size> mResolutionDropdown;
     private StringSpinnerWidget<MimeType> mMimeTypeDropdown;
+    List<CameraMediaSourceConfiguration> cameras = new ArrayList<>();
 
     private SimpleNavActivity navActivity;
 
@@ -82,12 +86,13 @@ public class StreamConfigurationFragment extends Fragment {
             Log.e(TAG, "Failed to create Kinesis Video client", e);
         }
 
+        cameras = getCameras(mKinesisVideoClient);
         mCamerasDropdown = new StringSpinnerWidget<>(
                 getActivity(),
                 view,
                 R.id.cameras_spinner,
                 ToStrings.CAMERA_DESCRIPTION,
-                getCameras(mKinesisVideoClient));
+                cameras);
 
         mCamerasDropdown.setItemSelectedListener(
                 new StringSpinnerWidget.ItemSelectedListener<CameraMediaSourceConfiguration>() {
@@ -181,8 +186,12 @@ public class StreamConfigurationFragment extends Fragment {
         final Bundle extras = new Bundle();
 
         extras.putParcelable(
-                StreamingFragment.KEY_MEDIA_SOURCE_CONFIGURATION,
-                getCurrentConfiguration());
+                StreamingFragment.KEY_MEDIA_SOURCE_CONFIGURATION_1,
+                getCurrentConfiguration1());
+
+        extras.putParcelable(
+                StreamingFragment.KEY_MEDIA_SOURCE_CONFIGURATION_2,
+                getCurrentConfiguration2());
 
         extras.putString(
                 StreamingFragment.KEY_STREAM_NAME,
@@ -191,20 +200,40 @@ public class StreamConfigurationFragment extends Fragment {
         navActivity.startStreamingFragment(extras);
     }
 
-    private AndroidCameraMediaSourceConfiguration getCurrentConfiguration() {
+    private AndroidCameraMediaSourceConfiguration getCurrentConfiguration1() {
+        CameraMediaSourceConfiguration selectedCamera = cameras.get(0); // Front camera
         return new AndroidCameraMediaSourceConfiguration(
                 AndroidCameraMediaSourceConfiguration.builder()
-                        .withCameraId(mCamerasDropdown.getSelectedItem().getCameraId())
+                        .withCameraId(selectedCamera.getCameraId())
                         .withEncodingMimeType(mMimeTypeDropdown.getSelectedItem().getMimeType())
                         .withHorizontalResolution(mResolutionDropdown.getSelectedItem().getWidth())
                         .withVerticalResolution(mResolutionDropdown.getSelectedItem().getHeight())
-                        .withCameraFacing(mCamerasDropdown.getSelectedItem().getCameraFacing())
+                        .withCameraFacing(selectedCamera.getCameraFacing())
                         .withIsEncoderHardwareAccelerated(
-                                mCamerasDropdown.getSelectedItem().isEndcoderHardwareAccelerated())
+                                selectedCamera.isEndcoderHardwareAccelerated())
                         .withFrameRate(FRAMERATE_20)
                         .withRetentionPeriodInHours(RETENTION_PERIOD_48_HOURS)
                         .withEncodingBitRate(BITRATE_384_KBPS)
-                        .withCameraOrientation(-mCamerasDropdown.getSelectedItem().getCameraOrientation())
+                        .withCameraOrientation(-selectedCamera.getCameraOrientation())
+                        .withNalAdaptationFlags(StreamInfo.NalAdaptationFlags.NAL_ADAPTATION_ANNEXB_CPD_AND_FRAME_NALS)
+                        .withIsAbsoluteTimecode(false));
+    }
+
+    private AndroidCameraMediaSourceConfiguration getCurrentConfiguration2() {
+        CameraMediaSourceConfiguration selectedCamera = cameras.get(1); // Back camera
+        return new AndroidCameraMediaSourceConfiguration(
+                AndroidCameraMediaSourceConfiguration.builder()
+                        .withCameraId(selectedCamera.getCameraId())
+                        .withEncodingMimeType(mMimeTypeDropdown.getSelectedItem().getMimeType())
+                        .withHorizontalResolution(mResolutionDropdown.getSelectedItem().getWidth())
+                        .withVerticalResolution(mResolutionDropdown.getSelectedItem().getHeight())
+                        .withCameraFacing(selectedCamera.getCameraFacing())
+                        .withIsEncoderHardwareAccelerated(
+                                selectedCamera.isEndcoderHardwareAccelerated())
+                        .withFrameRate(FRAMERATE_20)
+                        .withRetentionPeriodInHours(RETENTION_PERIOD_48_HOURS)
+                        .withEncodingBitRate(BITRATE_384_KBPS)
+                        .withCameraOrientation(-selectedCamera.getCameraOrientation())
                         .withNalAdaptationFlags(StreamInfo.NalAdaptationFlags.NAL_ADAPTATION_ANNEXB_CPD_AND_FRAME_NALS)
                         .withIsAbsoluteTimecode(false));
     }
