@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -36,6 +38,7 @@ public class SimpleNavActivity extends AppCompatActivity
     private StreamConfigurationFragment mConfigFragment = null;
     private StreamingFragment mStreamingFragment = null;
     private boolean mIfRemoteControlAllowed = false;
+    private Handler mControlHandler = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +62,7 @@ public class SimpleNavActivity extends AppCompatActivity
         LocalBroadcastManager.getInstance(this).registerReceiver((mNotificationReceiver),
                 new IntentFilter(Constants.ACTION.NOTIFICATION_MSG_RECEIVED_ACTION)
         );
+        mControlHandler = new Handler();
     }
 
     @Override
@@ -133,9 +137,22 @@ public class SimpleNavActivity extends AppCompatActivity
 
     public void startStreamingFragment(Bundle extras) {
         try {
-            mStreamingFragment = StreamingFragment.newInstance(this);
+            if (mStreamingFragment == null) {
+                mStreamingFragment = StreamingFragment.newInstance(this);
+            }
             mStreamingFragment.setArguments(extras);
             this.startFragment(mStreamingFragment);
+            if (mConfigFragment != null && mConfigFragment.isTimedStreaming()) {
+                mControlHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mStreamingFragment != null) {
+                            mStreamingFragment.pauseStreaming();
+                            startConfigFragment();
+                        }
+                    }
+                }, 5000L);
+            }
         } catch (Exception e) {
             Log.e("", "Failed to start streaming fragment.");
             e.printStackTrace();
@@ -144,7 +161,9 @@ public class SimpleNavActivity extends AppCompatActivity
 
     public void startConfigFragment() {
         try {
-            mConfigFragment = StreamConfigurationFragment.newInstance(this);
+            if (mConfigFragment == null) {
+                mConfigFragment = StreamConfigurationFragment.newInstance(this);
+            }
             this.startFragment(mConfigFragment);
         } catch (Exception e) {
             Log.e("", "Failed to go back to configure stream.");

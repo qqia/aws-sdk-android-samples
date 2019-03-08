@@ -1,6 +1,7 @@
 package com.amazonaws.kinesisvideo.demoapp.fragment;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import com.amazonaws.kinesisvideo.common.exception.KinesisVideoException;
 import com.amazonaws.kinesisvideo.demoapp.KinesisVideoDemoApp;
 import com.amazonaws.kinesisvideo.demoapp.R;
 import com.amazonaws.kinesisvideo.demoapp.activity.SimpleNavActivity;
+import com.amazonaws.kinesisvideo.demoapp.activity.VideoClipListActivity;
 import com.amazonaws.kinesisvideo.demoapp.constant.Constants;
 import com.amazonaws.kinesisvideo.demoapp.ui.adapter.ToStrings;
 import com.amazonaws.kinesisvideo.demoapp.ui.widget.StringSpinnerWidget;
@@ -47,10 +49,13 @@ public class StreamConfigurationFragment extends Fragment {
     private static final int RETENTION_PERIOD_48_HOURS = 2 * 24;
 
     private Button mStartStreamingButton;
+    private Button mGotoVideoList;
     private CheckBox mMotionDetectionCheckBox;
     private CheckBox mNotificationListenCheckBox;
     private CheckBox mFrontBackViewCheckBox;
+    private CheckBox mTimedStreamCheckBox;
     private boolean is360Enabled = false;
+    private boolean isTimedStreaming = true;
     private EditText mStreamName;
     private KinesisVideoClient mKinesisVideoClient;
 
@@ -141,6 +146,15 @@ public class StreamConfigurationFragment extends Fragment {
         mStartStreamingButton = (Button) view.findViewById(R.id.start_streaming);
         mStartStreamingButton.setOnClickListener(startStreamingActivityWhenClicked());
 
+        mGotoVideoList = (Button) view.findViewById(R.id.gotocliplist);
+        mGotoVideoList.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent k = new Intent(navActivity, VideoClipListActivity.class);
+                startActivity(k);
+            }
+        });
+
         mMotionDetectionCheckBox = (CheckBox) view.findViewById(R.id.checkBoxMotionDetection);
         mMotionDetectionCheckBox.setOnClickListener(toggleMotionDetectionWhenClicked());
 
@@ -149,6 +163,9 @@ public class StreamConfigurationFragment extends Fragment {
 
         mFrontBackViewCheckBox = (CheckBox) view.findViewById(R.id.checkBoxFrontBackView);
         mFrontBackViewCheckBox.setOnClickListener(toggle360ViewWhenClicked());
+
+        mTimedStreamCheckBox = (CheckBox) view.findViewById(R.id.checkBoxTimedStream);
+        mTimedStreamCheckBox.setOnClickListener(toggleTimedStreaming());
         mStreamName = (EditText) view.findViewById(R.id.stream_name);
     }
 
@@ -185,6 +202,23 @@ public class StreamConfigurationFragment extends Fragment {
                 }
             }
         };
+    }
+
+    private View.OnClickListener toggleTimedStreaming() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(final View view) {
+                if(((CompoundButton) view).isChecked()){
+                    isTimedStreaming = true;
+                } else {
+                    isTimedStreaming = false;
+                }
+            }
+        };
+    }
+
+    public boolean isTimedStreaming() {
+        return isTimedStreaming;
     }
 
     private View.OnClickListener toggle360ViewWhenClicked() {

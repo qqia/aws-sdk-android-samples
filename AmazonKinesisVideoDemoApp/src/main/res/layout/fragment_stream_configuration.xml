@@ -97,6 +97,14 @@
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="23dp"
                     android:text="360 View" />
+
+                <CheckBox
+                    android:id="@+id/checkBoxTimedStream"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:checked="true"
+                    android:text="TimedStream" />
             </RelativeLayout>
         <Space
             android:layout_width="match_parent"
@@ -125,5 +133,11 @@
                 android:layout_alignParentTop="true"
                 android:text="RemoteControl" />
         </RelativeLayout>
+
+        <Button
+            android:id="@+id/gotocliplist"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="GotoVideoClips" />
     </LinearLayout>
 </ScrollView>

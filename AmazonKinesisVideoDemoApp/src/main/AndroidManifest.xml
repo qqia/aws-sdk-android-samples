@@ -31,7 +31,11 @@
             android:label="@string/title_activity_simple_nav"
             android:theme="@style/AppTheme">
         </activity>
-
+        <activity
+            android:name="com.amazonaws.kinesisvideo.demoapp.activity.VideoClipListActivity"
+            android:label="VideoClips"
+            android:theme="@style/AppTheme">
+        </activity>
         <service
             android:name=".firebasecloudmessaging.MessageValueReading">
             <intent-filter>
