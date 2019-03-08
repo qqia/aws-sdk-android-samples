@@ -73,13 +73,16 @@ public class StreamingFragment extends Fragment implements TextureView.SurfaceTe
                     KinesisVideoDemoApp.getCredentialsProvider());
 
 
-            mCameraMediaSource1 = (AndroidCameraMediaSource) mKinesisVideoClient
-                    .createMediaSource(mStreamName + "-Front", mConfiguration1);
-            mCameraMediaSource2 = (AndroidCameraMediaSource) mKinesisVideoClient
-                    .createMediaSource(mStreamName + "-Back", mConfiguration2);
-            mCameraMediaSource1.setPreviewSurfaces();
-            mCameraMediaSource2.setPreviewSurfaces();
-
+            if (mConfiguration1 != null) {
+                mCameraMediaSource1 = (AndroidCameraMediaSource) mKinesisVideoClient
+                        .createMediaSource(mStreamName + "-Front", mConfiguration1);
+                mCameraMediaSource1.setPreviewSurfaces();
+            }
+            if (mConfiguration2 != null) {
+                mCameraMediaSource2 = (AndroidCameraMediaSource) mKinesisVideoClient
+                        .createMediaSource(mStreamName + "-Back", mConfiguration2);
+                mCameraMediaSource2.setPreviewSurfaces();
+            }
             resumeStreaming();
         } catch (final KinesisVideoException e) {
             Log.e(TAG, "unable to start streaming");
@@ -117,12 +120,15 @@ public class StreamingFragment extends Fragment implements TextureView.SurfaceTe
 
     private void resumeStreaming() {
         try {
-            if (mCameraMediaSource1 == null || mCameraMediaSource2 == null) {
+            if (mCameraMediaSource1 == null && mCameraMediaSource2 == null) {
                 return;
             }
-
-            mCameraMediaSource1.start();
-            mCameraMediaSource2.start();
+            if (mCameraMediaSource1 != null) {
+                mCameraMediaSource1.start();
+            }
+            if (mCameraMediaSource2 != null) {
+                mCameraMediaSource2.start();
+            }
             Toast.makeText(getActivity(), "resumed streaming", Toast.LENGTH_SHORT).show();
             mStartStreamingButton.setText(getActivity().getText(R.string.stop_streaming));
         } catch (final KinesisVideoException e) {
@@ -133,12 +139,15 @@ public class StreamingFragment extends Fragment implements TextureView.SurfaceTe
 
     public void pauseStreaming() {
         try {
-            if (mCameraMediaSource1 == null || mCameraMediaSource2 == null) {
+            if (mCameraMediaSource1 == null && mCameraMediaSource2 == null) {
                 return;
             }
-
-            mCameraMediaSource1.stop();
-            mCameraMediaSource2.stop();
+            if (mCameraMediaSource1 != null) {
+                mCameraMediaSource1.stop();
+            }
+            if (mCameraMediaSource2 != null) {
+                mCameraMediaSource2.stop();
+            }
             Toast.makeText(getActivity(), "stopped streaming", Toast.LENGTH_SHORT).show();
             mStartStreamingButton.setText(getActivity().getText(R.string.start_streaming));
         } catch (final KinesisVideoException e) {

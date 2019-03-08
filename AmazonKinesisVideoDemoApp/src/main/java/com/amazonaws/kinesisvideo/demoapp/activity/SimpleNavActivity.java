@@ -178,21 +178,23 @@ public class SimpleNavActivity extends AppCompatActivity
 
     public void onNotificationReceived(final String msg) {
         Log.i(TAG, "onNotificationMessageReceived: " + msg);
-        if (!mIfRemoteControlAllowed) {
+        if (!mIfRemoteControlAllowed || msg == null) {
             Log.i(TAG, "Remote control disabled");
             return;
         }
-        if (Constants.NOTIFICATION_COMMAND.START_STREAMING.equalsIgnoreCase(msg)) {
+        if (msg.toLowerCase().contains(Constants.NOTIFICATION_COMMAND.START_STREAMING.toLowerCase())) {
             if (mConfigFragment != null) {
                 mConfigFragment.startStreamingActivity();
             }
-        } else if (Constants.NOTIFICATION_COMMAND.STOP_STREAMING.equalsIgnoreCase(msg)) {
+        } else if (msg.toLowerCase().contains(Constants.NOTIFICATION_COMMAND.STOP_STREAMING.toLowerCase())) {
             if (mStreamingFragment != null) {
                 mStreamingFragment.pauseStreaming();
                 startConfigFragment();
             }
-        } else if (Constants.NOTIFICATION_COMMAND.START_ARMING.equalsIgnoreCase(msg)) {
+        } else if (msg.toLowerCase().contains(Constants.NOTIFICATION_COMMAND.START_ARMING.toLowerCase())) {
             startBackgroundMotionDetectionService();
+        } else if (msg.toLowerCase().contains(Constants.NOTIFICATION_COMMAND.STOP_ARMING.toLowerCase())) {
+            stopBackgroundMotionDetectionService();
         }
     }
 

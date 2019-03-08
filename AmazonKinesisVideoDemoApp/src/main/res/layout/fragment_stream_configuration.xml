@@ -88,6 +88,15 @@
                     android:padding="10dp"
                     android:background="@drawable/button_selector"
                     android:layout_margin="10dp"/>
+
+                <CheckBox
+                    android:id="@+id/checkBoxFrontBackView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="23dp"
+                    android:text="360 View" />
             </RelativeLayout>
         <Space
             android:layout_width="match_parent"

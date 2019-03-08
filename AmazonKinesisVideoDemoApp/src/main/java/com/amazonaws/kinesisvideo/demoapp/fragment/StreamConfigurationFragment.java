@@ -49,6 +49,8 @@ public class StreamConfigurationFragment extends Fragment {
     private Button mStartStreamingButton;
     private CheckBox mMotionDetectionCheckBox;
     private CheckBox mNotificationListenCheckBox;
+    private CheckBox mFrontBackViewCheckBox;
+    private boolean is360Enabled = false;
     private EditText mStreamName;
     private KinesisVideoClient mKinesisVideoClient;
 
@@ -144,6 +146,9 @@ public class StreamConfigurationFragment extends Fragment {
 
         mNotificationListenCheckBox = (CheckBox) view.findViewById(R.id.checkBoxNotificationListen);
         mNotificationListenCheckBox.setOnClickListener(toggleNotificationListenWhenClicked());
+
+        mFrontBackViewCheckBox = (CheckBox) view.findViewById(R.id.checkBoxFrontBackView);
+        mFrontBackViewCheckBox.setOnClickListener(toggle360ViewWhenClicked());
         mStreamName = (EditText) view.findViewById(R.id.stream_name);
     }
 
@@ -182,6 +187,19 @@ public class StreamConfigurationFragment extends Fragment {
         };
     }
 
+    private View.OnClickListener toggle360ViewWhenClicked() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(final View view) {
+                if(((CompoundButton) view).isChecked()){
+                    is360Enabled = true;
+                } else {
+                    is360Enabled = false;
+                }
+            }
+        };
+    }
+
     public void startStreamingActivity() {
         final Bundle extras = new Bundle();
 
@@ -201,40 +219,48 @@ public class StreamConfigurationFragment extends Fragment {
     }
 
     private AndroidCameraMediaSourceConfiguration getCurrentConfiguration1() {
-        CameraMediaSourceConfiguration selectedCamera = cameras.get(0); // Front camera
-        return new AndroidCameraMediaSourceConfiguration(
-                AndroidCameraMediaSourceConfiguration.builder()
-                        .withCameraId(selectedCamera.getCameraId())
-                        .withEncodingMimeType(mMimeTypeDropdown.getSelectedItem().getMimeType())
-                        .withHorizontalResolution(mResolutionDropdown.getSelectedItem().getWidth())
-                        .withVerticalResolution(mResolutionDropdown.getSelectedItem().getHeight())
-                        .withCameraFacing(selectedCamera.getCameraFacing())
-                        .withIsEncoderHardwareAccelerated(
-                                selectedCamera.isEndcoderHardwareAccelerated())
-                        .withFrameRate(FRAMERATE_20)
-                        .withRetentionPeriodInHours(RETENTION_PERIOD_48_HOURS)
-                        .withEncodingBitRate(BITRATE_384_KBPS)
-                        .withCameraOrientation(-selectedCamera.getCameraOrientation())
-                        .withNalAdaptationFlags(StreamInfo.NalAdaptationFlags.NAL_ADAPTATION_ANNEXB_CPD_AND_FRAME_NALS)
-                        .withIsAbsoluteTimecode(false));
+        if (mCamerasDropdown.getSelectedItem().getCameraFacing() == ToStrings.FACING_FRONT || is360Enabled) {
+            CameraMediaSourceConfiguration selectedCamera = cameras.get(1); // Front camera
+            return new AndroidCameraMediaSourceConfiguration(
+                    AndroidCameraMediaSourceConfiguration.builder()
+                            .withCameraId(selectedCamera.getCameraId())
+                            .withEncodingMimeType(mMimeTypeDropdown.getSelectedItem().getMimeType())
+                            .withHorizontalResolution(mResolutionDropdown.getSelectedItem().getWidth())
+                            .withVerticalResolution(mResolutionDropdown.getSelectedItem().getHeight())
+                            .withCameraFacing(selectedCamera.getCameraFacing())
+                            .withIsEncoderHardwareAccelerated(
+                                    selectedCamera.isEndcoderHardwareAccelerated())
+                            .withFrameRate(FRAMERATE_20)
+                            .withRetentionPeriodInHours(RETENTION_PERIOD_48_HOURS)
+                            .withEncodingBitRate(BITRATE_384_KBPS)
+                            .withCameraOrientation(-selectedCamera.getCameraOrientation())
+                            .withNalAdaptationFlags(StreamInfo.NalAdaptationFlags.NAL_ADAPTATION_ANNEXB_CPD_AND_FRAME_NALS)
+                            .withIsAbsoluteTimecode(false));
+        } else {
+            return null;
+        }
     }
 
     private AndroidCameraMediaSourceConfiguration getCurrentConfiguration2() {
-        CameraMediaSourceConfiguration selectedCamera = cameras.get(1); // Back camera
-        return new AndroidCameraMediaSourceConfiguration(
-                AndroidCameraMediaSourceConfiguration.builder()
-                        .withCameraId(selectedCamera.getCameraId())
-                        .withEncodingMimeType(mMimeTypeDropdown.getSelectedItem().getMimeType())
-                        .withHorizontalResolution(mResolutionDropdown.getSelectedItem().getWidth())
-                        .withVerticalResolution(mResolutionDropdown.getSelectedItem().getHeight())
-                        .withCameraFacing(selectedCamera.getCameraFacing())
-                        .withIsEncoderHardwareAccelerated(
-                                selectedCamera.isEndcoderHardwareAccelerated())
-                        .withFrameRate(FRAMERATE_20)
-                        .withRetentionPeriodInHours(RETENTION_PERIOD_48_HOURS)
-                        .withEncodingBitRate(BITRATE_384_KBPS)
-                        .withCameraOrientation(-selectedCamera.getCameraOrientation())
-                        .withNalAdaptationFlags(StreamInfo.NalAdaptationFlags.NAL_ADAPTATION_ANNEXB_CPD_AND_FRAME_NALS)
-                        .withIsAbsoluteTimecode(false));
+        if (mCamerasDropdown.getSelectedItem().getCameraFacing() == ToStrings.FACING_BACK || is360Enabled) {
+            CameraMediaSourceConfiguration selectedCamera = cameras.get(0); // Back camera
+            return new AndroidCameraMediaSourceConfiguration(
+                    AndroidCameraMediaSourceConfiguration.builder()
+                            .withCameraId(selectedCamera.getCameraId())
+                            .withEncodingMimeType(mMimeTypeDropdown.getSelectedItem().getMimeType())
+                            .withHorizontalResolution(mResolutionDropdown.getSelectedItem().getWidth())
+                            .withVerticalResolution(mResolutionDropdown.getSelectedItem().getHeight())
+                            .withCameraFacing(selectedCamera.getCameraFacing())
+                            .withIsEncoderHardwareAccelerated(
+                                    selectedCamera.isEndcoderHardwareAccelerated())
+                            .withFrameRate(FRAMERATE_20)
+                            .withRetentionPeriodInHours(RETENTION_PERIOD_48_HOURS)
+                            .withEncodingBitRate(BITRATE_384_KBPS)
+                            .withCameraOrientation(-selectedCamera.getCameraOrientation())
+                            .withNalAdaptationFlags(StreamInfo.NalAdaptationFlags.NAL_ADAPTATION_ANNEXB_CPD_AND_FRAME_NALS)
+                            .withIsAbsoluteTimecode(false));
+        } else {
+            return null;
+        }
     }
 }

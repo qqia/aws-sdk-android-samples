@@ -20,5 +20,6 @@ public class Constants {
         public static String START_STREAMING = "startstreaming";
         public static String STOP_STREAMING = "stopstreaming";
         public static String START_ARMING = "startarming";
+        public static String STOP_ARMING = "stoparming";
     }
 }
