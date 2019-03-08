@@ -151,7 +151,7 @@ public class SimpleNavActivity extends AppCompatActivity
                             startConfigFragment();
                         }
                     }
-                }, 5000L);
+                }, 30000L);
             }
         } catch (Exception e) {
             Log.e("", "Failed to start streaming fragment.");
