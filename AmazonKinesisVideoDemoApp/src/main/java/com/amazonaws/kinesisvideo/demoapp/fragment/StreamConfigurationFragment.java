@@ -1,17 +1,21 @@
 package com.amazonaws.kinesisvideo.demoapp.fragment;
 
 import android.Manifest;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 
 import com.amazonaws.kinesisvideo.client.KinesisVideoClient;
@@ -20,6 +24,7 @@ import com.amazonaws.kinesisvideo.common.exception.KinesisVideoException;
 import com.amazonaws.kinesisvideo.demoapp.KinesisVideoDemoApp;
 import com.amazonaws.kinesisvideo.demoapp.R;
 import com.amazonaws.kinesisvideo.demoapp.activity.SimpleNavActivity;
+import com.amazonaws.kinesisvideo.demoapp.constant.Constants;
 import com.amazonaws.kinesisvideo.demoapp.ui.adapter.ToStrings;
 import com.amazonaws.kinesisvideo.demoapp.ui.widget.StringSpinnerWidget;
 import com.amazonaws.kinesisvideo.producer.StreamInfo;
@@ -39,6 +44,8 @@ public class StreamConfigurationFragment extends Fragment {
     private static final int RETENTION_PERIOD_48_HOURS = 2 * 24;
 
     private Button mStartStreamingButton;
+    private CheckBox mMotionDetectionCheckBox;
+    private CheckBox mNotificationListenCheckBox;
     private EditText mStreamName;
     private KinesisVideoClient mKinesisVideoClient;
 
@@ -126,6 +133,12 @@ public class StreamConfigurationFragment extends Fragment {
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         mStartStreamingButton = (Button) view.findViewById(R.id.start_streaming);
         mStartStreamingButton.setOnClickListener(startStreamingActivityWhenClicked());
+
+        mMotionDetectionCheckBox = (CheckBox) view.findViewById(R.id.checkBoxMotionDetection);
+        mMotionDetectionCheckBox.setOnClickListener(toggleMotionDetectionWhenClicked());
+
+        mNotificationListenCheckBox = (CheckBox) view.findViewById(R.id.checkBoxNotificationListen);
+        mNotificationListenCheckBox.setOnClickListener(toggleNotificationListenWhenClicked());
         mStreamName = (EditText) view.findViewById(R.id.stream_name);
     }
 
@@ -138,7 +151,33 @@ public class StreamConfigurationFragment extends Fragment {
         };
     }
 
-    private void startStreamingActivity() {
+    private View.OnClickListener toggleMotionDetectionWhenClicked() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(final View view) {
+                if(((CompoundButton) view).isChecked()){
+                    navActivity.startBackgroundMotionDetectionService();
+                } else {
+                    navActivity.stopBackgroundMotionDetectionService();
+                }
+            }
+        };
+    }
+
+    private View.OnClickListener toggleNotificationListenWhenClicked() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(final View view) {
+                if(((CompoundButton) view).isChecked()){
+                    navActivity.setRemoteControlEnable(true);
+                } else {
+                    navActivity.setRemoteControlEnable(false);
+                }
+            }
+        };
+    }
+
+    public void startStreamingActivity() {
         final Bundle extras = new Bundle();
 
         extras.putParcelable(

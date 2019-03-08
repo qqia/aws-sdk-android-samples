@@ -31,6 +31,24 @@
             android:label="@string/title_activity_simple_nav"
             android:theme="@style/AppTheme">
         </activity>
+
+        <service
+            android:name=".firebasecloudmessaging.MessageValueReading">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".firebasecloudmessaging.TokenValueReading">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".motiondetection.MotionDetectionService">
+        </service>
     </application>
 
 </manifest>

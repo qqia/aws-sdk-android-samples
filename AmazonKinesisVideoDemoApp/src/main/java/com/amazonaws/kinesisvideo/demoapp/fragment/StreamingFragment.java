@@ -120,7 +120,7 @@ public class StreamingFragment extends Fragment implements TextureView.SurfaceTe
         }
     }
 
-    private void pauseStreaming() {
+    public void pauseStreaming() {
         try {
             if (mCameraMediaSource == null) {
                 return;
