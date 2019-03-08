@@ -241,7 +241,7 @@ public class MotionDetectionService extends Service {
                         }
                         sum /= bytes.length;
                         Log.i(TAG, "average intensity: " + sum);
-                        if (sum > motionDetectionThreshold) {
+                        if (sum > motionDetectionThreshold && imageCounter > 10) {
                             motionDetected();
                         }
                         //save(bytes);
